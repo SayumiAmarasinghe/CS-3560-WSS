@@ -1,26 +1,20 @@
-COMPILE INSTRUCTIONS
+# Group 4: CS 3650 WSS Game
+Name: Jasper Liu, Samy Jimenez, Nicholas Garcia, Jonah Lin, Sayumi Amarasinghe, Issa El Lahib
 
-MAC
-compile:
-javac -d bin $(find src -name "*.java")
+## Getting Started
 
-run:
-java -cp bin wss.Main
+Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
 
+## Folder Structure
 
-WINDOWS
-powershell-
-compile:
-javac -d bin (Get-ChildItem -Path src -Filter *.java -Recurse).FullName
+The workspace contains two folders by default, where:
 
-run:
-java -cp bin wss.Main
+- `src`: the folder to maintain sources
+- `lib`: the folder to maintain dependencies
 
-command prompt-
-compile:
-dir /s /B src\*.java > sources.txt
-javac -d bin @sources.txt
-del sources.txt
+Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+
+> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
 
 ## How do I compile/run this project?
 
