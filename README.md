@@ -1,18 +1,26 @@
-## Getting Started
+COMPILE INSTRUCTIONS
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+MAC
+compile:
+javac -d bin $(find src -name "*.java")
 
-## Folder Structure
+run:
+java -cp bin wss.Main
 
-The workspace contains two folders by default, where:
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+WINDOWS
+powershell-
+compile:
+javac -d bin (Get-ChildItem -Path src -Filter *.java -Recurse).FullName
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+run:
+java -cp bin wss.Main
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+command prompt-
+compile:
+dir /s /B src\*.java > sources.txt
+javac -d bin @sources.txt
+del sources.txt
 
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+run:
+java -cp bin wss.Main
