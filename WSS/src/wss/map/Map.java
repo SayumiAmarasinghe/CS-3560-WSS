@@ -1,6 +1,5 @@
 package wss.map;
 
-import wss.entities.Player;
 import wss.terrain.TerrainSquare;
 import wss.terrain.TerrainType;
 
@@ -9,16 +8,13 @@ public class Map
     // attributes
     private int height;
     private int width;
-    private Difficulty difficulty;
     private TerrainSquare[][] grid;
-    private Player player;
 
     // constructor
     public Map(int height, int width, Difficulty difficulty) 
     {
         this.height = height;
         this.width = width;
-        this.difficulty = difficulty;
         this.grid = generateMap(height, width, difficulty);
     }
 
