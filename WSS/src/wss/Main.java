@@ -1,9 +1,9 @@
 package wss;
-import wss.gui.GameScreen;
+import wss.gui.EntryScreen;
 
 public class Main {
     public static void main(String[] args) 
     {
-        GameScreen mainScreen = new GameScreen();
+        EntryScreen entryScreen = new EntryScreen();
     }
 }
