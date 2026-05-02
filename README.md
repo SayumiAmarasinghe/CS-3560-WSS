@@ -27,13 +27,13 @@ Meanwhile, the compiled output files will be generated in the `bin` folder by de
 - MAC user:
 
 ```bash
-./run.sh
+./scripts/run.sh
 ```
 
 - WINDOWS powershell user:
 
 ```powershell
-./run.ps1
+./scripts/run.ps1
 ```
 
 This will generate java bytecode files (\*.class) in the directory, `/WSS/bin`, which should be git-ignored.
