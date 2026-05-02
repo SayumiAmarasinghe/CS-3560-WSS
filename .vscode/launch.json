@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "InstrScreen",
+            "request": "launch",
+            "mainClass": "wss.gui.util.InstrScreen",
+            "projectName": "CS-3560-WSS_e10fd20"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "wss.Main",
+            "projectName": "CS-3560-WSS_e10fd20"
+        },
+        {
+            "name": "Python: testArgv",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "10",
+                "hi"
+            ]
+        }
+    ]
+}
