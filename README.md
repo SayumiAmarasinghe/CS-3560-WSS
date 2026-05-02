@@ -1,4 +1,5 @@
 # Group 4: CS 3650 WSS Game
+
 Name: Jasper Liu, Samy Jimenez, Nicholas Garcia, Jonah Lin, Sayumi Amarasinghe, Issa El Lahib
 
 ## Getting Started
@@ -41,6 +42,8 @@ This will generate java bytecode files (\*.class) in the directory, `/WSS/bin`
 ```bash
 java -cp bin wss.Main
 ```
+
+This will start our application GUI
 
 ## Dependency Management
 
