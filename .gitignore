@@ -87,3 +87,7 @@ ehthumbs.db
 *.temp
 *.swp
 *~
+
+# Executable files
+bin/
+*.exe

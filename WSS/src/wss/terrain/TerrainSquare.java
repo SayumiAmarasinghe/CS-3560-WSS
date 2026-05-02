@@ -73,27 +73,27 @@ public class TerrainSquare {
     //get player stats from player class 
     //TO DO: wait for implementation of player class 
     public boolean canEnter (Player player) {
-        return player.getFood() >= foodCost && 
-        player.getWater() >= waterCost && 
-        player.getMovement() >= movementCost;
+        return player.getCurrentFood() >= foodCost && 
+        player.getCurrentWater() >= waterCost && 
+        player.getMovementPoints() >= movementCost;
     }
 
     //deduct costs from player's reserves when they enter a square 
     public void enterSquare(Player player) {
         //if the player can enter, deduct costs 
         if (canEnter(player)) {
-            player.deductFood(foodCost);
-            player.deductWater(waterCost);
-            player.deductMovement(movementCost);
+            player.changeFood(-foodCost);
+            player.changeWater(-waterCost);
+            player.changeMovementPoints(-movementCost);
         }
     }
 
     //if player stays in same terrain square 
-    //player gains 2 movement units, but players still need waater nad food at 1/2 normal rate 
+    //player gains 2 movement units, but players still need waater and food at 1/2 normal rate 
     public void stayInSquare(Player player) {
-        player.deductFood(foodCost / 2);
-        player.deductWater(waterCost / 2);
-        player.addMovement(2); //gain 2 movement units
+        player.changeFood(-foodCost / 2);
+        player.changeWater(-waterCost / 2);
+        player.changeMovementPoints(2);
     }
 
     // print the terrain square
