@@ -24,6 +24,8 @@ public class EntryScreen extends JPanel {
         title.setIcon(ImageLoader.loadIcon("player.png", 100, 100));
         title.setVerticalTextPosition(JLabel.TOP);
         title.setHorizontalTextPosition(JLabel.CENTER);
+        //make a button that says "Start Game" and add an action listener to it that will open the instructions screen when clicked
+        
 
         // add components to the frame
         frame.add(title);

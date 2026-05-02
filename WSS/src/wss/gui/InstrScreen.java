@@ -1,4 +1,4 @@
-package wss.gui.util;
+package wss.gui;
 
 import java.awt.*;
 
