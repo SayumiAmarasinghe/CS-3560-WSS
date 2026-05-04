@@ -1,5 +1,10 @@
 package wss.trading;
 
+/*
+- represents one proposed trade between the player and a trader
+- offered are what the player gives
+- requested are what the player wants from them
+*/
 public class TradeOffer {
     private static final int GOLD_VALUE = 3;
     private static final int FOOD_VALUE = 2;
