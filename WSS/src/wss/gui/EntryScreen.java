@@ -45,7 +45,7 @@ public class EntryScreen extends JPanel {
         instructBtn.addActionListener(e -> new InstrScreen());
 
         startBtn = createStyledButton("Start Game");
-        
+        startBtn.addActionListener(e -> new GameScreen());
         buttonPanel.add(instructBtn);
         buttonPanel.add(startBtn);
 
