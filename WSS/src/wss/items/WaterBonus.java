@@ -4,6 +4,10 @@ public class WaterBonus extends Item {
 
     private int waterAmount;
 
+public int getWaterAmount() {
+    return waterAmount;
+}
+    
     @Override
     public void replenish(int amount) {
         this.waterAmount += amount;
