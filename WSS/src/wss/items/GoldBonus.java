@@ -4,6 +4,10 @@ public class GoldBonus extends Item {
 
     private int goldAmount;
 
+public int getGoldAmount() {
+    return goldAmount;
+}
+    
     @Override
     public void replenish(int amount) {
         this.goldAmount += amount;
