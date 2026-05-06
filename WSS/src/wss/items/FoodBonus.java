@@ -4,6 +4,10 @@ public class FoodBonus extends Item {
 
     private int foodAmount;
 
+public int getFoodAmount() {
+    return foodAmount;
+}
+    
     @Override
     public void replenish(int amount) {
         this.foodAmount += amount;
