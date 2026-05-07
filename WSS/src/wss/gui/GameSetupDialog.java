@@ -6,7 +6,8 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import wss.vision.VisionFactory;
-import wss.Difficulty;
+//import wss.Difficulty;
+import wss.map.Difficulty;
 
 public class GameSetupDialog extends JDialog {
     private JTextField widthField;

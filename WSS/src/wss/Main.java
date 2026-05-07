@@ -12,7 +12,7 @@ public class Main {
     {
         EntryScreen entryScreen = new EntryScreen();
 
-
+/* 
         //Vision test
         Difficulty difficulty = Difficulty.EASY;
         System.out.println("Allowed visions on " + difficulty + ":");
@@ -20,5 +20,6 @@ public class Main {
         Vision vision = VisionFactory.createVision("Cautious", difficulty);
         System.out.println("Chosen vision: " + vision.getName());
         vision.printVisionScope();
+        */
     }
 }
