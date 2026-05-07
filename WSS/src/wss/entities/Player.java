@@ -1,5 +1,6 @@
 package wss.entities;
 import wss.ai.brain.Brain;
+import wss.map.Map;
 import wss.vision.Vision;
 
 public class Player {
@@ -14,16 +15,20 @@ public class Player {
     private int gold;
     private int movementPoints;
 
+    private int xMapPos;
+    private int yMapPos;
+
     private Vision vision;
     private Brain brain;
+    private Map map;
 
     public Player(int maxStrength, int maxWater, int maxFood,
-                  int startingMovementPoints, Vision chosenVision, Brain chosenBrain) {
+                  int startingMovementPoints, Vision chosenVision, Map map) {
 
         if (maxStrength <= 0 || maxWater <= 0 || maxFood <= 0 || startingMovementPoints <= 0) {
             throw new IllegalArgumentException("Max or starting values cannot be 0 or less");
         }
-        if (chosenVision == null || chosenBrain == null) {
+        if (chosenVision == null) {
             throw new IllegalArgumentException("Vision and Brain cannot be null");
         }
 
@@ -39,7 +44,8 @@ public class Player {
         this.movementPoints = startingMovementPoints;
 
         this.vision = chosenVision;
-        this.brain = chosenBrain;
+        this.brain = new Brain(this);
+        this.map = map;
     }
 
     // -------------------- Helper Methods --------------------
@@ -154,4 +160,24 @@ public class Player {
     public Brain getBrain() {
         return brain;
     }
+
+    // -------------------- Map --------------------
+
+    public int getXMapPos() {
+        return xMapPos;
+    }
+
+    public int getYMapPos() {
+        return yMapPos;
+    }
+
+    public Map getMap() {
+        return map;
+    }   
+
+    public void setMapPosition(int x, int y) {
+        this.xMapPos = x;
+        this.yMapPos = y;
+    }
+
 }
