@@ -11,12 +11,10 @@ public class Main {
     public static void main(String[] args) 
     {
         EntryScreen entryScreen = new EntryScreen();
-        InstrScreen instrScreen = new InstrScreen();
-        GameScreen gameScreen = new GameScreen();
 
 
         //Vision test
-        Difficulty difficulty = Difficulty.HARD;
+        Difficulty difficulty = Difficulty.EASY;
         System.out.println("Allowed visions on " + difficulty + ":");
         System.out.println(VisionFactory.getAllowedVisionNames(difficulty));
         Vision vision = VisionFactory.createVision("Cautious", difficulty);

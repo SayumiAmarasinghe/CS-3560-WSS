@@ -27,7 +27,20 @@ public class GameScreen extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
         topPanel.add(statsPanel, BorderLayout.EAST);
+        topPanel.add(createLegendPanel(), BorderLayout.WEST);
         add(topPanel, BorderLayout.NORTH);
+
+        //--TOP LEFT: LEGEND 
+        /* 
+        JPanel legendPanel = new JPanel();
+        legendPanel.setOpaque(false);
+        JLabel legend = new JLabel("<html><b>Legend:</b></html>");
+        legend.setForeground(Color.WHITE);
+        legend.setFont(new Font("MV Boli", Font.PLAIN, 14));
+        topPanel.add(legend, BorderLayout.WEST);
+        add(legendPanel, BorderLayout.NORTH);
+        */
+        //ADD LEGEND ICONS
 
         // --- CENTER: TERRAIN MAP ---
         mapPanel = new JPanel(new GridLayout(height, width, 2, 2));
@@ -46,6 +59,51 @@ public class GameScreen extends JFrame {
 
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    //create a legend panel to explain terrain types and their colors
+    private Component createLegendPanel() {
+        JPanel legendPanel = new JPanel(new GridBagLayout());
+        legendPanel.setOpaque(false);
+        legendPanel.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(Color.WHITE), "TERRAIN KEY", 
+            TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION,
+            new Font("MV Boli", Font.PLAIN, 14), Color.WHITE));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2, 10, 2, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        //define legend items matching terrain colors
+    addLegendItem(legendPanel, new Color(0x34A853), "Plains", 0, gbc);
+    addLegendItem(legendPanel, new Color(0x707070), "Mountains", 1, gbc);
+    addLegendItem(legendPanel, new Color(0xEDC9AF), "Desert", 2, gbc);
+    addLegendItem(legendPanel, new Color(0x0B6623), "Forest", 3, gbc);
+    addLegendItem(legendPanel, new Color(0x4A5D23), "Swamp", 4, gbc);
+    addLegendItem(legendPanel, new Color(0xA5F2F3), "Tundra", 5, gbc);
+    addLegendItem(legendPanel, new Color(0xFFD700), "Exit", 6, gbc);
+    return legendPanel;
+    }
+    
+
+    //add a single legend item with color and label
+    private void addLegendItem(JPanel panel, Color color, String name, int row, GridBagConstraints gbc) {
+        gbc.gridy = row;
+        //color selection
+        gbc.gridx = 0;
+        JLabel colorLabel = new JLabel();
+        colorLabel.setOpaque(true);
+        colorLabel.setBackground(color);
+        colorLabel.setPreferredSize(new Dimension(15, 15));
+        colorLabel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+        panel.add(colorLabel, gbc);
+
+        //label 
+        gbc.gridx = 1;
+        JLabel nameLabel = new JLabel(name);
+        nameLabel.setForeground(Color.WHITE);
+        nameLabel.setFont(new Font("MV Boli", Font.PLAIN, 12));
+        panel.add(nameLabel, gbc);
     }
 
     private JPanel createStatsDashboard() {

@@ -12,6 +12,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import wss.gui.util.ImageLoader;
+import wss.gui.GameScreen;
 
 public class InstrScreen extends JFrame {
     public InstrScreen() {
@@ -53,7 +54,24 @@ public class InstrScreen extends JFrame {
         JButton closeButton = new JButton("Ready to Start!");
         closeButton.setFont(new Font("MV Boli", Font.PLAIN, 18));
         closeButton.setBackground(Color.WHITE);
-        closeButton.addActionListener(e -> frame.dispose());
+        //closeButton.addActionListener(e -> frame.dispose());
+        closeButton.addActionListener(e -> {
+            GameSetupDialog dialog = new GameSetupDialog(frame);
+            dialog.setVisible(true);
+
+            if (dialog.isConfirmed()) {
+                int w = dialog.getMapWidth();
+                int h = dialog.getMapHeight();
+                String diff = dialog.getDifficulty();
+        
+            System.out.println("Initializing " + diff + " map: " + w + "x" + h);
+        
+            frame.dispose(); // Close entry screen
+            new GameScreen(); // Launch the game
+            }
+
+        });
+        //closeButton.addActionListener(e -> new GameScreen());
         frame.add(closeButton, BorderLayout.SOUTH);
 
         frame.setVisible(true);

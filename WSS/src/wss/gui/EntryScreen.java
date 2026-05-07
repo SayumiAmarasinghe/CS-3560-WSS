@@ -45,7 +45,22 @@ public class EntryScreen extends JPanel {
         instructBtn.addActionListener(e -> new InstrScreen());
 
         startBtn = createStyledButton("Start Game");
-        startBtn.addActionListener(e -> new GameScreen());
+        //startBtn.addActionListener(e -> new GameScreen());
+        startBtn.addActionListener(e -> {
+        GameSetupDialog dialog = new GameSetupDialog(frame);
+        dialog.setVisible(true);
+
+        if (dialog.isConfirmed()) {
+            int w = dialog.getMapWidth();
+            int h = dialog.getMapHeight();
+            String diff = dialog.getDifficulty();
+            
+            System.out.println("Initializing " + diff + " map: " + w + "x" + h);
+            
+            frame.dispose(); // Close entry screen
+            new GameScreen(); // Launch the game
+    }
+});
         buttonPanel.add(instructBtn);
         buttonPanel.add(startBtn);
 
