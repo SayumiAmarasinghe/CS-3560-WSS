@@ -1,7 +1,8 @@
 package wss.vision;
 import java.util.ArrayList;
 import java.util.List;
-import wss.Difficulty;
+import wss.map.Difficulty;
+
 public class VisionFactory {
     public static List<String> getAllowedVisionNames(Difficulty difficulty) {
         List<String> visions = new ArrayList<>();
