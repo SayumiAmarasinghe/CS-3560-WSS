@@ -22,7 +22,7 @@ public class Player {
     private Brain brain;
     private Map map;
 
-    public Player(int maxStrength, int maxWater, int maxFood,
+     public Player(int maxStrength, int maxWater, int maxFood,
                   int startingMovementPoints, Vision chosenVision, Map map) {
 
         if (maxStrength <= 0 || maxWater <= 0 || maxFood <= 0 || startingMovementPoints <= 0) {
@@ -45,7 +45,7 @@ public class Player {
 
         this.vision = chosenVision;
         this.brain = new Brain(this);
-        this.map = map;
+        this.map = getMap();
     }
 
     // -------------------- Helper Methods --------------------

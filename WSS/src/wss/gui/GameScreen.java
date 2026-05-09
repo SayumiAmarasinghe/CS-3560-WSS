@@ -3,44 +3,62 @@ package wss.gui;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import wss.map.Map;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+
+import wss.ai.brain.Brain;
+import wss.entities.Player;
+import wss.map.Difficulty;
+import wss.terrain.TerrainSquare;
+import wss.terrain.TerrainType;
+import wss.vision.VisionFactory;
 
 public class GameScreen extends JFrame {
     private JPanel mapPanel;
     private JProgressBar foodBar, waterBar, moveBar;
     private JLabel[][] gridLabels;
     
-    // Mock data based on project requirements
-    private int playerX = 0, playerY = 0;
-    private final int width = 10, height = 10;
+    //use map class 
+    private Map gameMap;
+    private Player player;
+
+    private int playerX = 0;
+    private int playerY = 0;
+    private int width;
+    private int height;
+
+    /**
+     * @param Map width - selected by user
+     * @param Map height -selected byuser
+     * @param difficulty - selected byuser
+     * @param vision Name - randomly assigned
+     */
     
-    public GameScreen() {
+    public GameScreen(int w, int h, String difficulty, String vision) {
+        this.width = w;
+        this.height = h;
+        Difficulty difficultyLevel = Difficulty.valueOf(difficulty);
+        //initialize map with user-selected dimensions and difficulty
+        this.gameMap = new Map(height, width, difficultyLevel);
+
+        //initialize player with random vision and starting resources
+        this.player = new Player(100, 100, 100, 100, 
+                    VisionFactory.createVision(vision, difficultyLevel), gameMap);
         setTitle("WSS Game - Journey East");
         setSize(900, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getContentPane().setBackground(new Color(0x123456));
         setLayout(new BorderLayout(10, 10));
 
-        // --- TOP RIGHT: STATS DASHBOARD ---
+        // --- TOP RIGHT: STATS DASHBOARD + LEGEND ---
         JPanel statsPanel = createStatsDashboard();
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
         topPanel.add(statsPanel, BorderLayout.EAST);
         topPanel.add(createLegendPanel(), BorderLayout.WEST);
         add(topPanel, BorderLayout.NORTH);
-
-        //--TOP LEFT: LEGEND 
-        /* 
-        JPanel legendPanel = new JPanel();
-        legendPanel.setOpaque(false);
-        JLabel legend = new JLabel("<html><b>Legend:</b></html>");
-        legend.setForeground(Color.WHITE);
-        legend.setFont(new Font("MV Boli", Font.PLAIN, 14));
-        topPanel.add(legend, BorderLayout.WEST);
-        add(legendPanel, BorderLayout.NORTH);
-        */
-        //ADD LEGEND ICONS
 
         // --- CENTER: TERRAIN MAP ---
         mapPanel = new JPanel(new GridLayout(height, width, 2, 2));
@@ -56,9 +74,26 @@ public class GameScreen extends JFrame {
                 handleMovement(e.getKeyCode());
             }
         });
-
+        updateUI();
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    private void updateUI() {
+        foodBar.setValue(player.getCurrentFood());
+        waterBar.setValue(player.getCurrentWater());
+        moveBar.setValue(player.getMovementPoints());
+
+        //display current food / max food on the bar
+        foodBar.setString(player.getCurrentFood() + "/" + player.getMaxFood());
+        waterBar.setString(player.getCurrentWater() + "/" + player.getMaxWater());
+        moveBar.setString(String.valueOf(player.getMovementPoints()));
+
+        //show message if we're out of resources 
+        if (player.getCurrentFood() <= 0 || player.getCurrentWater() <= 0) {
+            JOptionPane.showMessageDialog(this, "Game Over: You ran out of resources.");
+        }
+
     }
 
     //create a legend panel to explain terrain types and their colors
@@ -133,10 +168,13 @@ public class GameScreen extends JFrame {
     private void initializeMap() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+                //fetch square by Map.java
+                TerrainSquare square = gameMap.getTerrainAt(y, x);
+                TerrainType type = square.getTerrainType();
                 JLabel tile = new JLabel();
                 tile.setOpaque(true);
                 // Assign colors based on terrain types [cite: 204, 233, 234, 235]
-                tile.setBackground(getTerrainColor(x, y)); 
+                tile.setBackground(getTerrainColor(type, y)); 
                 tile.setBorder(BorderFactory.createLineBorder(new Color(0,0,0,50)));
                 gridLabels[y][x] = tile;
                 mapPanel.add(tile);
@@ -145,16 +183,15 @@ public class GameScreen extends JFrame {
         updatePlayerIcon();
     }
 
-    private Color getTerrainColor(int x, int y) {
+    private Color getTerrainColor(TerrainType type, int x) {
         // Simple logic to demonstrate different terrains [cite: 233-238]
-        if (x == 9) return new Color(0xFFD700); // East Edge/Exit [cite: 15, 497]
-        int type = (x + y) % 6;
+        if (x == width - 1) return new Color(0xFFD700);
         switch(type) {
-            case 0: return new Color(0x34A853); // Plains
-            case 1: return new Color(0x707070); // Mountains
-            case 2: return new Color(0xEDC9AF); // Desert
-            case 3: return new Color(0x0B6623); // Forest
-            case 4: return new Color(0x4A5D23); // Swamp
+            case PLAINS: return new Color(0x34A853); // Plains
+            case MOUNTAIN: return new Color(0x707070); // Mountains
+            case DESERT: return new Color(0xEDC9AF); // Desert
+            case FOREST: return new Color(0x0B6623); // Forest
+            case SWAMP: return new Color(0x4A5D23); // Swamp
             default: return new Color(0xA5F2F3); // Tundra
         }
     }

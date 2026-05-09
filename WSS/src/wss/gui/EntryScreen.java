@@ -54,11 +54,12 @@ public class EntryScreen extends JPanel {
             int w = dialog.getMapWidth();
             int h = dialog.getMapHeight();
             String diff = dialog.getDifficulty();
+            String vision = dialog.getVisionName();
             
             System.out.println("Initializing " + diff + " map: " + w + "x" + h);
             
             frame.dispose(); // Close entry screen
-            new GameScreen(); // Launch the game
+            new GameScreen(w, h, diff, vision); // Launch the game
     }
 });
         buttonPanel.add(instructBtn);
