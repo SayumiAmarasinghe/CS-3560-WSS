@@ -103,8 +103,8 @@ public class TerrainSquare {
     //if player stays in same terrain square 
     //player gains 2 movement units, but players still need waater and food at 1/2 normal rate 
     public void stayInSquare(Player player) {
-        player.changeFood(-foodCost / 2);
-        player.changeWater(-waterCost / 2);
+        player.changeFood(-(foodCost / 2));
+        player.changeWater(-(waterCost / 2));
         player.changeMovementPoints(2);
     }
 

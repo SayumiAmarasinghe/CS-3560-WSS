@@ -23,9 +23,6 @@ public class GameScreen extends JFrame {
     //use map class 
     private Map gameMap;
     private Player player;
-
-    private int playerX = 0;
-    private int playerY = 0;
     private int width;
     private int height;
 
@@ -75,6 +72,8 @@ public class GameScreen extends JFrame {
             }
         });
         updateUI();
+        setFocusable(true);
+        requestFocusInWindow();
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -92,6 +91,7 @@ public class GameScreen extends JFrame {
         //show message if we're out of resources 
         if (player.getCurrentFood() <= 0 || player.getCurrentWater() <= 0) {
             JOptionPane.showMessageDialog(this, "Game Over: You ran out of resources.");
+            dispose();
         }
 
     }
@@ -174,7 +174,7 @@ public class GameScreen extends JFrame {
                 JLabel tile = new JLabel();
                 tile.setOpaque(true);
                 // Assign colors based on terrain types [cite: 204, 233, 234, 235]
-                tile.setBackground(getTerrainColor(type, y)); 
+                tile.setBackground(getTerrainColor(type,x, y)); 
                 tile.setBorder(BorderFactory.createLineBorder(new Color(0,0,0,50)));
                 gridLabels[y][x] = tile;
                 mapPanel.add(tile);
@@ -183,9 +183,9 @@ public class GameScreen extends JFrame {
         updatePlayerIcon();
     }
 
-    private Color getTerrainColor(TerrainType type, int x) {
+    private Color getTerrainColor(TerrainType type, int x, int y) {
         // Simple logic to demonstrate different terrains [cite: 233-238]
-        if (x == width - 1) return new Color(0xFFD700);
+        if (x == width - 1 && y == height - 1) return new Color(0xFFD700);
         switch(type) {
             case PLAINS: return new Color(0x34A853); // Plains
             case MOUNTAIN: return new Color(0x707070); // Mountains
@@ -197,23 +197,80 @@ public class GameScreen extends JFrame {
     }
 
     private void handleMovement(int keyCode) {
-        // Move logic: Pay costs and update bars [cite: 202, 212]
-        gridLabels[playerY][playerX].setText(""); // Clear old position
-        
-        if (keyCode == KeyEvent.VK_UP && playerY > 0) playerY--;
-        if (keyCode == KeyEvent.VK_DOWN && playerY < height - 1) playerY++;
-        if (keyCode == KeyEvent.VK_LEFT && playerX > 0) playerX--;
-        if (keyCode == KeyEvent.VK_RIGHT && playerX < width - 1) playerX++;
+        // Move logic: Pay costs and update bars
+        //get current position of player 
+        int currentX = player.getXMapPos();
+        int currentY = player.getYMapPos();
+        int nextX = currentX;
+        int nextY = currentY;
+        // 1. Determine Intent
+        if (keyCode == KeyEvent.VK_UP && currentY > 0) nextY--;
+        else if (keyCode == KeyEvent.VK_DOWN && currentY < height - 1) nextY++;
 
-        updatePlayerIcon();
-        updateResources();
+        else if (keyCode == KeyEvent.VK_LEFT) {
+            if (currentX > 0) {
+                nextX--; // Normal left move
+            } else if (currentY > 0) {
+                // Wrap to the right side of the row above
+                nextX = width - 1; 
+                nextY--;
+            }
+        }
+       else if (keyCode == KeyEvent.VK_RIGHT) {
+            if (currentX < width - 1) {
+                nextX++; // Normal right move
+            } else if (currentY < height - 1) {
+                // Wrap to the left side of the row below
+                nextX = 0; 
+                nextY++;
+            }
+        }
+        else if (keyCode == KeyEvent.VK_S) { 
+            // Stay action: Use the terrain logic [cite: 133-137]
+            gameMap.getTerrainAt(currentY, currentX).stayInSquare(player);
+            updateUI();
+            return;
+        } else {
+            return; // Invalid key or out of bounds
+        }
+
+        // 2. Fetch the target square from the backend map
+        TerrainSquare target = gameMap.getTerrainAt(nextY, nextX);
+        
+        // 3. Check and Apply Logic
+        if (target.canEnter(player)) {          // Check if entry is allowed [cite: 114-118]
+            target.enterSquare(player);         // Deduct costs [cite: 121-128]
+            
+            // 4. Update UI Grid
+            gridLabels[currentY][currentX].setText(""); 
+            
+            // 5. Update Player State
+            player.setMapPosition(nextX, nextY); // Use your new Player method
+            updatePlayerIcon();
+            
+            // 6. Win Condition Check
+            if (nextX == width - 1 && nextY == height - 1) {
+                JOptionPane.showMessageDialog(this, "Success! You reached the East Edge.");
+                dispose();
+            }
+        } else {
+            // Provide feedback when move is denied due to lack of resources
+            JOptionPane.showMessageDialog(this, "Cannot enter: insufficient reserves for this terrain.", "Move Denied", JOptionPane.WARNING_MESSAGE);
+            TerrainSquare currentSquare = gameMap.getTerrainAt(currentY, currentX);
+            currentSquare.stayInSquare(player);
+        }
+        
+        // 7. Sync Progress Bars
+        updateUI();
     }
 
     private void updatePlayerIcon() {
-        gridLabels[playerY][playerX].setText("P");
-        gridLabels[playerY][playerX].setForeground(Color.WHITE);
-        gridLabels[playerY][playerX].setHorizontalAlignment(SwingConstants.CENTER);
-        gridLabels[playerY][playerX].setFont(new Font("Arial", Font.BOLD, 20));
+        int realX = player.getXMapPos();
+        int realY = player.getYMapPos();
+        gridLabels[realY][realX].setText("P");
+        gridLabels[realY][realX].setForeground(Color.WHITE);
+        gridLabels[realY][realX].setHorizontalAlignment(SwingConstants.CENTER);
+        gridLabels[realY][realX].setFont(new Font("Arial", Font.BOLD, 20));
     }
 
     private void updateResources() {
