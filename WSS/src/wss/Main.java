@@ -19,7 +19,7 @@ public class Main {
         System.out.println(VisionFactory.getAllowedVisionNames(difficulty));
         Vision vision = VisionFactory.createVision("Cautious", difficulty);
         System.out.println("Chosen vision: " + vision.getName());
-        vision.printVisionScope();
+        vision.printVisionScPope();
         */
     }
 }

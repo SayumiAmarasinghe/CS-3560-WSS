@@ -14,6 +14,7 @@ import wss.map.Difficulty;
 import wss.terrain.TerrainSquare;
 import wss.terrain.TerrainType;
 import wss.vision.VisionFactory;
+import wss.gui.util.ImageLoader;
 
 public class GameScreen extends JFrame {
     private JPanel mapPanel;
@@ -27,8 +28,8 @@ public class GameScreen extends JFrame {
     private int height;
 
     /**
-     * @param Map width - selected by user
-     * @param Map height -selected byuser
+     * @param w Map width - selected by user
+     * @param h Map height -selected byuser
      * @param difficulty - selected byuser
      * @param vision Name - randomly assigned
      */
@@ -109,31 +110,42 @@ public class GameScreen extends JFrame {
         gbc.insets = new Insets(2, 10, 2, 10);
         gbc.anchor = GridBagConstraints.WEST;
 
-        //define legend items matching terrain colors
-    addLegendItem(legendPanel, new Color(0x34A853), "Plains", 0, gbc);
-    addLegendItem(legendPanel, new Color(0x707070), "Mountains", 1, gbc);
-    addLegendItem(legendPanel, new Color(0xEDC9AF), "Desert", 2, gbc);
-    addLegendItem(legendPanel, new Color(0x0B6623), "Forest", 3, gbc);
-    addLegendItem(legendPanel, new Color(0x4A5D23), "Swamp", 4, gbc);
-    addLegendItem(legendPanel, new Color(0xA5F2F3), "Tundra", 5, gbc);
-    addLegendItem(legendPanel, new Color(0xFFD700), "Exit", 6, gbc);
-    return legendPanel;
+        //smaller size for legend 
+        int iconSize = 20;
+
+        // Define legend items using your getTerrainIcon method
+        addLegendItem(legendPanel, getTerrainIcon(TerrainType.PLAINS, iconSize, iconSize), "Plains", 0, gbc, false);
+        addLegendItem(legendPanel, getTerrainIcon(TerrainType.MOUNTAIN, iconSize, iconSize), "Mountains", 1, gbc, false);
+        addLegendItem(legendPanel, getTerrainIcon(TerrainType.DESERT, iconSize, iconSize), "Desert", 2, gbc, false);
+        addLegendItem(legendPanel, getTerrainIcon(TerrainType.FOREST, iconSize, iconSize), "Forest", 3, gbc, false);
+        addLegendItem(legendPanel, getTerrainIcon(TerrainType.SWAMP, iconSize, iconSize), "Swamp", 4, gbc, false);
+        addLegendItem(legendPanel, getTerrainIcon(TerrainType.TUNDRA, iconSize, iconSize), "Tundra", 5, gbc, false);
+        
+        // For the exit, we show a sample icon (Plains) but flag it as the exit to get the gold border
+        addLegendItem(legendPanel, ImageLoader.loadIcon("exit.png", iconSize, iconSize), "Exit (Bottom-Right)", 6, gbc, true);
+        
+        return legendPanel;
     }
     
 
     //add a single legend item with color and label
-    private void addLegendItem(JPanel panel, Color color, String name, int row, GridBagConstraints gbc) {
+    private void addLegendItem(JPanel panel, ImageIcon icon, String name, int row, GridBagConstraints gbc, boolean isExit) {
         gbc.gridy = row;
         //color selection
         gbc.gridx = 0;
-        JLabel colorLabel = new JLabel();
-        colorLabel.setOpaque(true);
-        colorLabel.setBackground(color);
-        colorLabel.setPreferredSize(new Dimension(15, 15));
-        colorLabel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
-        panel.add(colorLabel, gbc);
-
+        JLabel iconLabel = new JLabel();
+        iconLabel.setIcon(icon);
+        iconLabel.setPreferredSize(new Dimension(20, 20));
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        iconLabel.setVerticalAlignment(SwingConstants.CENTER);
         //label 
+        // if exit, ad gold border 
+        if (name.contains("Exit")) {
+            iconLabel.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2));
+        } else {
+            iconLabel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));
+        }
+        panel.add(iconLabel, gbc);
         gbc.gridx = 1;
         JLabel nameLabel = new JLabel(name);
         nameLabel.setForeground(Color.WHITE);
@@ -153,7 +165,7 @@ public class GameScreen extends JFrame {
         gbc.insets = new Insets(5, 10, 5, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Initialize Progress Bars [cite: 138, 139, 140]
+        // Initialize Progress Bars
         foodBar = createBar(Color.ORANGE, "Food");
         waterBar = createBar(new Color(0x00BFFF), "Water");
         moveBar = createBar(Color.GREEN, "Move");
@@ -166,6 +178,7 @@ public class GameScreen extends JFrame {
     }
 
     private void initializeMap() {
+        int tileSize = 60;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 //fetch square by Map.java
@@ -173,9 +186,22 @@ public class GameScreen extends JFrame {
                 TerrainType type = square.getTerrainType();
                 JLabel tile = new JLabel();
                 tile.setOpaque(true);
-                // Assign colors based on terrain types [cite: 204, 233, 234, 235]
-                tile.setBackground(getTerrainColor(type,x, y)); 
+
+                // Check for Exit tile specifically
+                if (x == width - 1 && y == height - 1) {
+                    tile.setIcon(ImageLoader.loadIcon("exit.png", tileSize, tileSize));
+                } else {
+                    tile.setIcon(getTerrainIcon(type, tileSize, tileSize)); 
+                }
+                
                 tile.setBorder(BorderFactory.createLineBorder(new Color(0,0,0,50)));
+                
+                // Keep the text centered on top of the image icon
+                tile.setHorizontalAlignment(SwingConstants.CENTER);
+                tile.setVerticalAlignment(SwingConstants.CENTER);
+                tile.setHorizontalTextPosition(JLabel.CENTER);
+                tile.setVerticalTextPosition(JLabel.CENTER);
+                
                 gridLabels[y][x] = tile;
                 mapPanel.add(tile);
             }
@@ -183,30 +209,31 @@ public class GameScreen extends JFrame {
         updatePlayerIcon();
     }
 
-    private Color getTerrainColor(TerrainType type, int x, int y) {
-        // Simple logic to demonstrate different terrains [cite: 233-238]
-        if (x == width - 1 && y == height - 1) return new Color(0xFFD700);
+    // FIX: Takes iconWidth and iconHeight to properly size the images instead of using map width/height
+    private ImageIcon getTerrainIcon(TerrainType type, int iconWidth, int iconHeight) {
+        String fileName = "";
         switch(type) {
-            case PLAINS: return new Color(0x34A853); // Plains
-            case MOUNTAIN: return new Color(0x707070); // Mountains
-            case DESERT: return new Color(0xEDC9AF); // Desert
-            case FOREST: return new Color(0x0B6623); // Forest
-            case SWAMP: return new Color(0x4A5D23); // Swamp
-            default: return new Color(0xA5F2F3); // Tundra
+            case PLAINS: fileName = "plains.png"; break;
+            case MOUNTAIN: fileName = "mountain.png"; break;
+            case DESERT: fileName = "desert.png"; break;
+            case FOREST: fileName = "forest.png"; break;
+            case SWAMP: fileName = "swamp.png"; break;
+            default: fileName = "tundra.png"; break; 
         }
+        // Load the image for the terrain type at the requested pixel size
+        return ImageLoader.loadIcon(fileName, iconWidth, iconHeight);
     }
 
     private void handleMovement(int keyCode) {
-        // Move logic: Pay costs and update bars
         //get current position of player 
         int currentX = player.getXMapPos();
         int currentY = player.getYMapPos();
         int nextX = currentX;
         int nextY = currentY;
+        
         // 1. Determine Intent
         if (keyCode == KeyEvent.VK_UP && currentY > 0) nextY--;
         else if (keyCode == KeyEvent.VK_DOWN && currentY < height - 1) nextY++;
-
         else if (keyCode == KeyEvent.VK_LEFT) {
             if (currentX > 0) {
                 nextX--; // Normal left move
@@ -226,7 +253,7 @@ public class GameScreen extends JFrame {
             }
         }
         else if (keyCode == KeyEvent.VK_S) { 
-            // Stay action: Use the terrain logic [cite: 133-137]
+            // Stay action
             gameMap.getTerrainAt(currentY, currentX).stayInSquare(player);
             updateUI();
             return;
@@ -238,14 +265,18 @@ public class GameScreen extends JFrame {
         TerrainSquare target = gameMap.getTerrainAt(nextY, nextX);
         
         // 3. Check and Apply Logic
-        if (target.canEnter(player)) {          // Check if entry is allowed [cite: 114-118]
-            target.enterSquare(player);         // Deduct costs [cite: 121-128]
+        if (target.canEnter(player)) {          
+            target.enterSquare(player);         
             
-            // 4. Update UI Grid
+            // 4. Update UI Grid (Clear the "P" from old square)
             gridLabels[currentY][currentX].setText(""); 
             
+            // Optional: Re-draw background if switching to player.png image later
+            // TerrainType oldType = gameMap.getTerrainAt(currentY, currentX).getTerrainType();
+            // gridLabels[currentY][currentX].setIcon(getTerrainIcon(oldType, 60, 60));
+            
             // 5. Update Player State
-            player.setMapPosition(nextX, nextY); // Use your new Player method
+            player.setMapPosition(nextX, nextY); 
             updatePlayerIcon();
             
             // 6. Win Condition Check
@@ -271,13 +302,6 @@ public class GameScreen extends JFrame {
         gridLabels[realY][realX].setForeground(Color.WHITE);
         gridLabels[realY][realX].setHorizontalAlignment(SwingConstants.CENTER);
         gridLabels[realY][realX].setFont(new Font("Arial", Font.BOLD, 20));
-    }
-
-    private void updateResources() {
-        // Logic: Costs are deducted when entering a square [cite: 199, 475]
-        foodBar.setValue(foodBar.getValue() - 5);
-        waterBar.setValue(waterBar.getValue() - 5);
-        moveBar.setValue(moveBar.getValue() - 2);
     }
 
     private JProgressBar createBar(Color color, String label) {
