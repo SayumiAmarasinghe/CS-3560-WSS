@@ -27,7 +27,7 @@ public class EntryScreen extends JPanel {
         title = new JLabel("Welcome to WSS Game!");
         title.setForeground(Color.WHITE);
         title.setFont(new Font("MV Boli", Font.BOLD, 24));
-        title.setIcon(ImageLoader.loadIcon("player.png", 100, 100));
+        title.setIcon(ImageLoader.loadIcon("player_tile.png", 100, 100));
         title.setVerticalTextPosition(JLabel.TOP);
         title.setHorizontalTextPosition(JLabel.CENTER);
 
@@ -100,7 +100,7 @@ public class EntryScreen extends JPanel {
         
         // Scale Icon Size
         int iconSize = Math.max(50, width / 5);
-        title.setIcon(ImageLoader.loadIcon("player.png", iconSize, iconSize));
+        title.setIcon(ImageLoader.loadIcon("player_tile.png", iconSize, iconSize));
 
         // Scale Buttons
       Dimension d1 = instructBtn.getPreferredSize();

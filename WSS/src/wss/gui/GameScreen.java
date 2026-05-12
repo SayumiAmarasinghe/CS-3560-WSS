@@ -213,12 +213,12 @@ public class GameScreen extends JFrame {
     private ImageIcon getTerrainIcon(TerrainType type, int iconWidth, int iconHeight) {
         String fileName = "";
         switch(type) {
-            case PLAINS: fileName = "plains.png"; break;
-            case MOUNTAIN: fileName = "mountain.png"; break;
-            case DESERT: fileName = "desert.png"; break;
-            case FOREST: fileName = "forest.png"; break;
-            case SWAMP: fileName = "swamp.png"; break;
-            default: fileName = "tundra.png"; break; 
+            case PLAINS: fileName = "plains_tile.png"; break;
+            case MOUNTAIN: fileName = "mountain_tile.png"; break;
+            case DESERT: fileName = "desert_tile.png"; break;
+            case FOREST: fileName = "forest_tile.png"; break;
+            case SWAMP: fileName = "swamp_tile.png"; break;
+            default: fileName = "tundra_tile.png"; break; 
         }
         // Load the image for the terrain type at the requested pixel size
         return ImageLoader.loadIcon(fileName, iconWidth, iconHeight);
