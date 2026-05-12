@@ -100,7 +100,7 @@ public class EntryScreen extends JPanel {
         
         // Scale Icon Size
         int iconSize = Math.max(50, width / 5);
-        title.setIcon(ImageLoader.loadIcon("player.png", iconSize, iconSize));
+        title.setIcon(ImageLoader.loadIcon("player_tile.png", iconSize, iconSize));
 
         // Scale Buttons
       Dimension d1 = instructBtn.getPreferredSize();
