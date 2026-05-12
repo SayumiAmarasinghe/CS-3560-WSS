@@ -27,7 +27,7 @@ public class EntryScreen extends JPanel {
         title = new JLabel("Welcome to WSS Game!");
         title.setForeground(Color.WHITE);
         title.setFont(new Font("MV Boli", Font.BOLD, 24));
-        title.setIcon(ImageLoader.loadIcon("player.png", 100, 100));
+        title.setIcon(ImageLoader.loadIcon("player_tile.png", 100, 100));
         title.setVerticalTextPosition(JLabel.TOP);
         title.setHorizontalTextPosition(JLabel.CENTER);
 
