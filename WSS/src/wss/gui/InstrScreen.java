@@ -27,7 +27,7 @@ public class InstrScreen extends JFrame {
         JLabel header = new JLabel("How to Play");
         header.setForeground(Color.WHITE);
         header.setFont(new Font("MV Boli", Font.BOLD, 30));
-        header.setIcon(ImageLoader.loadIcon("player.png", 50, 50));
+        header.setIcon(ImageLoader.loadIcon("player_tile.png", 50, 50));
         header.setHorizontalAlignment(SwingConstants.CENTER);
         header.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         frame.add(header, BorderLayout.NORTH);
