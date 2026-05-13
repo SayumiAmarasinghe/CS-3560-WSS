@@ -310,7 +310,7 @@ public class GameScreen extends JFrame {
                 mapPanel.add(tile);
             }
         }
-        updatePlayerIcon();
+        refreshMapVisionTiles();
     }
 
     // FIX: Takes iconWidth and iconHeight to properly size the images instead of using map width/height
