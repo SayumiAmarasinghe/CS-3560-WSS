@@ -69,16 +69,16 @@ public class TerrainSquare {
         return terrainType;
     }
     public List<Item> getItems() {
-    return items;
+        return items;
     }
     public Trader getTrader() {
-    return trader;
+        return trader;
     }
     public boolean hasItems() {
-    return items != null && !items.isEmpty();
+        return items != null && !items.isEmpty();
     }
     public boolean hasTrader() {
-    return trader != null;
+        return trader != null;
     }
 
     //boolean class to see if player has enough reserves to enter this square 

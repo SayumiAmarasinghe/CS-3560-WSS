@@ -3,6 +3,7 @@ package wss.gui;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import wss.map.Map;
 
 import javax.swing.*;
@@ -15,6 +16,7 @@ import wss.terrain.TerrainSquare;
 import wss.terrain.TerrainType;
 import wss.vision.VisionFactory;
 import wss.gui.util.ImageLoader;
+import wss.items.*;
 
 public class GameScreen extends JFrame {
     private JPanel mapPanel;
@@ -45,7 +47,7 @@ public class GameScreen extends JFrame {
         this.player = new Player(100, 100, 100, 100, 
                     VisionFactory.createVision(vision, difficultyLevel), gameMap);
         setTitle("WSS Game - Journey East");
-        setSize(900, 700);
+        setSize(900, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getContentPane().setBackground(new Color(0x123456));
         setLayout(new BorderLayout(10, 10));
@@ -95,6 +97,107 @@ public class GameScreen extends JFrame {
             dispose();
         }
 
+    }
+
+    private void refreshMapVisionTiles() {
+        int tileSize = 60;
+        int playerX = player.getXMapPos();
+        int playerY = player.getYMapPos();
+
+        // First fog every tile
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                JLabel tile = gridLabels[y][x];
+    
+                tile.setText("");
+    
+                if (x == width - 1 && y == height - 1) {
+                    tile.setIcon(ImageLoader.loadIcon("exit.png", tileSize, tileSize));
+                } else {
+                    tile.setIcon(ImageLoader.loadIcon("fog.png", tileSize, tileSize));
+                }
+            }
+        }
+    
+        // Reveal visible tiles
+        TerrainSquare playerSquare = gameMap.getTerrainAt(playerY, playerX);
+        TerrainType playerSquareType = playerSquare.getTerrainType();
+        JLabel playerTile = gridLabels[playerY][playerX];
+        playerTile.setIcon(buildTileIcon(playerSquareType, playerSquare, tileSize));
+
+        int[][] visibleOffsets = player.getVision().getVisibleOffsets();
+    
+        for (int[] offset : visibleOffsets) {
+            int x = playerX + offset[0];
+            int y = playerY + offset[1];
+    
+            if (x < 0 || y < 0 || x >= width || y >= height) {
+                continue;
+            }
+    
+            TerrainSquare square = gameMap.getTerrainAt(y, x);
+            TerrainType type = square.getTerrainType();
+            JLabel tile = gridLabels[y][x];
+    
+            if (x == width - 1 && y == height - 1) {
+                tile.setIcon(ImageLoader.loadIcon("exit.png", tileSize, tileSize));
+            } else {
+                tile.setIcon(buildTileIcon(type, square, tileSize));
+            }
+        }
+    
+        updatePlayerIcon();
+        mapPanel.revalidate();
+        mapPanel.repaint();
+    }
+
+    private ImageIcon buildTileIcon(TerrainType type, TerrainSquare square, int size) {
+        BufferedImage base = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = base.createGraphics();
+        // 1. TERRAIN (centered base)
+        ImageIcon terrain = getTerrainIcon(type, size, size);
+    
+    
+        g.drawImage(terrain.getImage(), 0, 0, size, size, null);
+    
+        // 2. OFF-CENTER OVERLAYS
+        int overlaySize = (int)(size * 0.5);
+    
+        int offsetStep = size / 6; // controls spread
+        int index = 0;
+    
+        if (square.hasTrader()) {
+            ImageIcon trader = ImageLoader.loadIcon("trader.png", overlaySize, overlaySize);
+    
+            g.drawImage(trader.getImage(), 0, 0, overlaySize*2, overlaySize*2, null);
+            index++;
+        }
+    
+        if (square.hasItems()) {
+            for (Item item : square.getItems()) {
+    
+                ImageIcon icon = null;
+    
+                if (item instanceof GoldBonus) {
+                    icon = ImageLoader.loadIcon("gold.png", overlaySize, overlaySize);
+                } else if (item instanceof WaterBonus) {
+                    icon = ImageLoader.loadIcon("water.png", overlaySize, overlaySize);
+                } else if (item instanceof FoodBonus) {
+                    icon = ImageLoader.loadIcon("food.png", overlaySize, overlaySize);
+                }
+    
+                if (icon != null) {
+                    int x = size - overlaySize - offsetStep;
+                    int y = offsetStep + (index * (overlaySize / 2));
+    
+                    g.drawImage(icon.getImage(), x, y, overlaySize, overlaySize, null);
+                    index++;
+                }
+            }
+        }
+    
+        g.dispose();
+        return new ImageIcon(base);
     }
 
     //create a legend panel to explain terrain types and their colors
@@ -183,6 +286,7 @@ public class GameScreen extends JFrame {
             for (int x = 0; x < width; x++) {
                 //fetch square by Map.java
                 TerrainSquare square = gameMap.getTerrainAt(y, x);
+                //System.out.println(square.hasItems());
                 TerrainType type = square.getTerrainType();
                 JLabel tile = new JLabel();
                 tile.setOpaque(true);
@@ -191,7 +295,7 @@ public class GameScreen extends JFrame {
                 if (x == width - 1 && y == height - 1) {
                     tile.setIcon(ImageLoader.loadIcon("exit.png", tileSize, tileSize));
                 } else {
-                    tile.setIcon(getTerrainIcon(type, tileSize, tileSize)); 
+                    tile.setIcon(buildTileIcon(type, square, tileSize));
                 }
                 
                 tile.setBorder(BorderFactory.createLineBorder(new Color(0,0,0,50)));
@@ -230,10 +334,16 @@ public class GameScreen extends JFrame {
         int currentY = player.getYMapPos();
         int nextX = currentX;
         int nextY = currentY;
-        
+        boolean moveOcurred = false;
         // 1. Determine Intent
-        if (keyCode == KeyEvent.VK_UP && currentY > 0) nextY--;
-        else if (keyCode == KeyEvent.VK_DOWN && currentY < height - 1) nextY++;
+        if (keyCode == KeyEvent.VK_UP && currentY > 0) {
+            nextY--;
+            moveOcurred = true;
+        }
+        else if (keyCode == KeyEvent.VK_DOWN && currentY < height - 1) {
+            nextY++;
+            moveOcurred = true;
+        }
         else if (keyCode == KeyEvent.VK_LEFT) {
             if (currentX > 0) {
                 nextX--; // Normal left move
@@ -242,6 +352,7 @@ public class GameScreen extends JFrame {
                 nextX = width - 1; 
                 nextY--;
             }
+            moveOcurred = true;
         }
        else if (keyCode == KeyEvent.VK_RIGHT) {
             if (currentX < width - 1) {
@@ -251,6 +362,7 @@ public class GameScreen extends JFrame {
                 nextX = 0; 
                 nextY++;
             }
+            moveOcurred = true;
         }
         else if (keyCode == KeyEvent.VK_S) { 
             // Stay action
@@ -260,6 +372,7 @@ public class GameScreen extends JFrame {
         } else {
             return; // Invalid key or out of bounds
         }
+
 
         // 2. Fetch the target square from the backend map
         TerrainSquare target = gameMap.getTerrainAt(nextY, nextX);
@@ -283,6 +396,10 @@ public class GameScreen extends JFrame {
             if (nextX == width - 1 && nextY == height - 1) {
                 JOptionPane.showMessageDialog(this, "Success! You reached the East Edge.");
                 dispose();
+            }
+            /// 7. Show Potential Moves
+            if (moveOcurred) {
+                refreshMapVisionTiles();
             }
         } else {
             // Provide feedback when move is denied due to lack of resources

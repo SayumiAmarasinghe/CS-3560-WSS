@@ -1,7 +1,14 @@
 package wss.map;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import wss.terrain.TerrainSquare;
 import wss.terrain.TerrainType;
+
+import wss.trading.*;
+
+import wss.items.*;
 
 public class Map 
 {
@@ -58,22 +65,64 @@ public class Map
 
         TerrainSquare[][] mapGrid = new TerrainSquare[height][width];
         for (int y = 0; y < height; y++) 
-        {
-            for (int x = 0; x < width; x++) 
             {
-                double rand = Math.random();
-                if (rand < p_plains) 
-                    mapGrid[y][x] = new TerrainSquare(TerrainType.PLAINS, null, null);
+                for (int x = 0; x < width; x++) 
+                {
+                    double rand = Math.random();
+                    double itemsRand = Math.random();
+                    double traderRand = Math.random();
+                    Trader trader = null;
+                    List<Item> theItemList = new ArrayList<>();
+            
+                    // 25% chance that this square has items
+                    if (itemsRand < .25) 
+                    {
+                        // Add up to 3 random items
+                        for (int i = 0; i < 3; i++)  // 50% chance of no item being added
+                        {
+                            double itemRand = Math.random();
+            
+                            if (itemRand < 0.16) 
+                            {
+                                GoldBonus gold = new GoldBonus();
+                                theItemList.add(gold);
+                            } 
+                            else if (itemRand < 0.32) 
+                            {
+                                FoodBonus food = new FoodBonus();
+                                theItemList.add(food);
+                            } 
+                            else if (itemRand < .5)
+                            {
+                                WaterBonus water = new WaterBonus();
+                                theItemList.add(water);
+                            }
+                        }
+                    }
+                    else {
+                        // 5% chance of trader
+                        if (traderRand < .05){
+                            double typeOfTrader = Math.random();
+                            if (typeOfTrader < .5){
+                                trader = new NormalTrader("Normal Trader", 100);
+                            }
+                            else {
+                                trader = new GreedyTrader("Greedy Trader", 25);
+                            }
+                        }
+                    }
+                if (rand < p_plains)
+                    mapGrid[y][x] = new TerrainSquare(TerrainType.PLAINS, theItemList, trader);
                 else if (rand < p_plains + p_forest) 
-                    mapGrid[y][x] = new TerrainSquare(TerrainType.FOREST, null, null);
+                    mapGrid[y][x] = new TerrainSquare(TerrainType.FOREST, theItemList, trader);
                 else if (rand < p_plains + p_forest + p_mountain) 
-                    mapGrid[y][x] = new TerrainSquare(TerrainType.MOUNTAIN, null, null);
+                    mapGrid[y][x] = new TerrainSquare(TerrainType.MOUNTAIN, theItemList, trader);
                 else if (rand < p_plains + p_forest + p_mountain + p_swamp) 
-                    mapGrid[y][x] = new TerrainSquare(TerrainType.SWAMP, null, null);
+                    mapGrid[y][x] = new TerrainSquare(TerrainType.SWAMP, theItemList, trader);
                 else if (rand < p_plains + p_forest + p_mountain + p_swamp + p_desert) 
-                    mapGrid[y][x] = new TerrainSquare(TerrainType.DESERT, null, null);
+                    mapGrid[y][x] = new TerrainSquare(TerrainType.DESERT, theItemList, trader);
                 else 
-                    mapGrid[y][x] = new TerrainSquare(TerrainType.TUNDRA, null, null);
+                    mapGrid[y][x] = new TerrainSquare(TerrainType.TUNDRA, theItemList, trader);
             }
         }
         return mapGrid;
