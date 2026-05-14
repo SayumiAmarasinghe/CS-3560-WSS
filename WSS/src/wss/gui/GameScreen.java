@@ -97,8 +97,12 @@ public class GameScreen extends JFrame {
 
         //show message if we're out of resources 
         if (player.getCurrentFood() <= 0 || player.getCurrentWater() <= 0) {
+            //open the game over screen with loss message
+             if (player.getCurrentFood() <= 0 || player.getCurrentWater() <= 0) {
             JOptionPane.showMessageDialog(this, "Game Over: You ran out of resources.");
+            new GameOverScreen(false);
             dispose();
+        }
         }
 
     }
