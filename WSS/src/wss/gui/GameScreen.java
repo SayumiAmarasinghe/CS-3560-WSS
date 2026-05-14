@@ -412,7 +412,8 @@ public class GameScreen extends JFrame {
             
             // 6. Win Condition Check
             if (nextX == width - 1 && nextY == height - 1) {
-                JOptionPane.showMessageDialog(this, "Success! You reached the East Edge.");
+                JOptionPane.showMessageDialog(this, "Success! You won!");
+                new GameOverScreen(true);
                 dispose();
             }
         } else {
