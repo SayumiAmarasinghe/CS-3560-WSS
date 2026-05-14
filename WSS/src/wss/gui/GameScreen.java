@@ -23,6 +23,7 @@ import wss.items.*;
 public class GameScreen extends JFrame {
     private JPanel mapPanel;
     private JProgressBar foodBar, waterBar, moveBar;
+    private JLabel goldLabel;
     private JLabel[][] gridLabels;
     
     //use map class 
@@ -84,6 +85,7 @@ public class GameScreen extends JFrame {
     }
 
     private void updateUI() {
+        goldLabel.setText(String.valueOf(player.getGold()));
         foodBar.setValue(player.getCurrentFood());
         waterBar.setValue(player.getCurrentWater());
         moveBar.setValue(player.getMovementPoints());
@@ -271,13 +273,15 @@ public class GameScreen extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Initialize Progress Bars
+        goldLabel = createStatValueLabel();
         foodBar = createBar(Color.ORANGE, "Food");
         waterBar = createBar(new Color(0x00BFFF), "Water");
         moveBar = createBar(Color.GREEN, "Move");
 
-        addStatRow(panel, "Food:", foodBar, 0);
-        addStatRow(panel, "Water:", waterBar, 1);
-        addStatRow(panel, "Move:", moveBar, 2);
+        addStatRow(panel, "Gold:", goldLabel, 0);
+        addStatRow(panel, "Food:", foodBar, 1);
+        addStatRow(panel, "Water:", waterBar, 2);
+        addStatRow(panel, "Move:", moveBar, 3);
 
         return panel;
     }
@@ -637,7 +641,14 @@ public class GameScreen extends JFrame {
         return bar;
     }
 
-    private void addStatRow(JPanel p, String text, JProgressBar bar, int y) {
+    private JLabel createStatValueLabel() {
+        JLabel label = new JLabel("0");
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Arial", Font.BOLD, 13));
+        return label;
+    }
+
+    private void addStatRow(JPanel p, String text, JComponent value, int y) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = y;
         gbc.gridx = 0;
@@ -645,6 +656,6 @@ public class GameScreen extends JFrame {
         l.setForeground(Color.WHITE);
         p.add(l, gbc);
         gbc.gridx = 1;
-        p.add(bar, gbc);
+        p.add(value, gbc);
     }
 }
