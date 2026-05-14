@@ -6,6 +6,12 @@ public class FoodBonus extends Item {
 
     private int foodAmount;
 
+    public FoodBonus(int foodAmount) {
+        this.foodAmount = foodAmount;
+        // 50% chance to be a repeating item
+        repeating = Math.random() < 0.5;
+    }
+
     public int getFoodAmount() {
         return foodAmount;
     }

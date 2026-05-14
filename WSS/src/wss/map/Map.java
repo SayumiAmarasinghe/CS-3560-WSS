@@ -2,13 +2,10 @@ package wss.map;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import wss.items.*;
 import wss.terrain.TerrainSquare;
 import wss.terrain.TerrainType;
-
 import wss.trading.*;
-
-import wss.items.*;
 
 public class Map 
 {
@@ -85,17 +82,17 @@ public class Map
             
                             if (itemRand < 0.16) 
                             {
-                                GoldBonus gold = new GoldBonus();
+                                GoldBonus gold = new GoldBonus((int)(Math.random() * (25 - 1)) + 1);
                                 theItemList.add(gold);
                             } 
                             else if (itemRand < 0.32) 
                             {
-                                FoodBonus food = new FoodBonus();
+                                FoodBonus food = new FoodBonus((int)(Math.random() * (25 - 1)) + 1);
                                 theItemList.add(food);
                             } 
                             else if (itemRand < .5)
                             {
-                                WaterBonus water = new WaterBonus();
+                                WaterBonus water = new WaterBonus((int)(Math.random() * (25 - 1)) + 1);
                                 theItemList.add(water);
                             }
                         }

@@ -6,6 +6,12 @@ public class WaterBonus extends Item {
 
     private int waterAmount;
 
+    public WaterBonus(int waterAmount) {
+        this.waterAmount = waterAmount;
+        // 50% chance to be a repeating item
+        repeating = Math.random() < 0.5;
+    }
+
     public int getWaterAmount() {
         return waterAmount;
     }

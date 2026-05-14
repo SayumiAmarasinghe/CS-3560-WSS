@@ -6,6 +6,12 @@ public class GoldBonus extends Item {
 
     private int goldAmount;
 
+    public GoldBonus(int goldAmount) {
+        this.goldAmount = goldAmount;
+        // 50% chance to be a repeating item
+        repeating = Math.random() < 0.5;
+    }
+
     public int getGoldAmount() {
         return goldAmount;
     }
