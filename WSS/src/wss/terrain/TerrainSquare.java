@@ -14,6 +14,9 @@ public class TerrainSquare {
     private List<Item> items;
     private Trader trader;
 
+    // boolean checks if player has seen the square before, used for fog of war implementation
+    public Boolean hasSeen = false;
+
     //constructor for terrain square
     public TerrainSquare(TerrainType type, List<Item> items, Trader trader) {
         this.terrainType = type;

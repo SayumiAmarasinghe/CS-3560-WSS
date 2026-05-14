@@ -4,21 +4,18 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import wss.map.Map;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-
-import wss.ai.brain.Brain;
 import wss.entities.Player;
+import wss.gui.util.ImageLoader;
+import wss.items.*;
 import wss.map.Difficulty;
+import wss.map.Map;
 import wss.terrain.TerrainSquare;
 import wss.terrain.TerrainType;
 import wss.trading.TradeOffer;
 import wss.trading.Trader;
 import wss.vision.VisionFactory;
-import wss.gui.util.ImageLoader;
-import wss.items.*;
 
 public class GameScreen extends JFrame {
     private JPanel mapPanel;
@@ -119,7 +116,8 @@ public class GameScreen extends JFrame {
     
                 tile.setText("");
     
-                if (x == width - 1 && y == height - 1) {
+                if (gameMap.getTerrainAt(y,x).hasSeen) {
+                } else if (x == width - 1 && y == height - 1) {
                     tile.setIcon(ImageLoader.loadIcon("exit.png", tileSize, tileSize));
                 } else {
                     tile.setIcon(ImageLoader.loadIcon("fog.png", tileSize, tileSize));
@@ -150,6 +148,7 @@ public class GameScreen extends JFrame {
             if (x == width - 1 && y == height - 1) {
                 tile.setIcon(ImageLoader.loadIcon("exit.png", tileSize, tileSize));
             } else {
+                gameMap.getTerrainAt(y, x).hasSeen = true;
                 tile.setIcon(buildTileIcon(type, square, tileSize));
             }
         }
