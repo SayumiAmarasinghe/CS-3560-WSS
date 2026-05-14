@@ -132,8 +132,8 @@ public class GameScreen extends JFrame {
         int[][] visibleOffsets = player.getVision().getVisibleOffsets();
     
         for (int[] offset : visibleOffsets) {
-            int x = playerX + offset[0];
-            int y = playerY + offset[1];
+            int x = playerX + offset[1];
+            int y = playerY + offset[0];
     
             if (x < 0 || y < 0 || x >= width || y >= height) {
                 continue;
