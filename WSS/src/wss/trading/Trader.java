@@ -1,5 +1,7 @@
 package wss.trading;
 
+import wss.entities.Player;
+
 /*
 - shared parent class for all trader types in the game
 - stores common trader data and defines the negotiation methods
@@ -74,7 +76,73 @@ public abstract class Trader {
 
     public abstract String evaluateOffer(TradeOffer offer);
 
-    public abstract TradeOffer counterOffer(TradeOffer offer);
+    public abstract TradeOffer counterOffer(TradeOffer offer, Player player);
+
+    protected TradeOffer addRandomAffordableDemand(TradeOffer offer, Player player, int minExtra, int maxExtra) {
+        int availableGold = player.getGold() - offer.getOfferedGold();
+        int availableFood = player.getCurrentFood() - offer.getOfferedFood();
+        int availableWater = player.getCurrentWater() - offer.getOfferedWater();
+
+        int optionCount = 0;
+        if (availableGold > 0) {
+            optionCount++;
+        }
+        if (availableFood > 0) {
+            optionCount++;
+        }
+        if (availableWater > 0) {
+            optionCount++;
+        }
+
+        if (optionCount == 0) {
+            return offer;
+        }
+
+        int selectedOption = (int) (Math.random() * optionCount);
+
+        if (availableGold > 0) {
+            if (selectedOption == 0) {
+                int extraGold = getRandomExtraAmount(availableGold, minExtra, maxExtra);
+                return new TradeOffer(
+                        offer.getOfferedGold() + extraGold,
+                        offer.getOfferedFood(),
+                        offer.getOfferedWater(),
+                        offer.getRequestedGold(),
+                        offer.getRequestedFood(),
+                        offer.getRequestedWater());
+            }
+            selectedOption--;
+        }
+
+        if (availableFood > 0) {
+            if (selectedOption == 0) {
+                int extraFood = getRandomExtraAmount(availableFood, minExtra, maxExtra);
+                return new TradeOffer(
+                        offer.getOfferedGold(),
+                        offer.getOfferedFood() + extraFood,
+                        offer.getOfferedWater(),
+                        offer.getRequestedGold(),
+                        offer.getRequestedFood(),
+                        offer.getRequestedWater());
+            }
+            selectedOption--;
+        }
+
+        int extraWater = getRandomExtraAmount(availableWater, minExtra, maxExtra);
+        return new TradeOffer(
+                offer.getOfferedGold(),
+                offer.getOfferedFood(),
+                offer.getOfferedWater() + extraWater,
+                offer.getRequestedGold(),
+                offer.getRequestedFood(),
+                offer.getRequestedWater());
+    }
+
+    private int getRandomExtraAmount(int availableAmount, int minExtra, int maxExtra) {
+        int highestExtra = Math.min(availableAmount, maxExtra);
+        int lowestExtra = Math.min(minExtra, highestExtra);
+        return lowestExtra + (int) (Math.random() * (highestExtra - lowestExtra + 1));
+    }
 
     public String acceptTrade(TradeOffer offer) {
         return name + " accepted the trade: " + offer;
@@ -82,6 +150,35 @@ public abstract class Trader {
 
     public String rejectTrade(TradeOffer offer) {
         return name + " rejected the trade: " + offer;
+    }
+
+    public boolean canCompleteTrade(Player player, TradeOffer offer) {
+        return player.getGold() >= offer.getOfferedGold()
+                && player.getCurrentFood() >= offer.getOfferedFood()
+                && player.getCurrentWater() >= offer.getOfferedWater()
+                && gold >= offer.getRequestedGold()
+                && food >= offer.getRequestedFood()
+                && water >= offer.getRequestedWater();
+    }
+
+    public boolean completeTrade(Player player, TradeOffer offer) {
+        if (!canCompleteTrade(player, offer)) {
+            return false;
+        }
+
+        player.changeGold(-offer.getOfferedGold());
+        player.changeFood(-offer.getOfferedFood());
+        player.changeWater(-offer.getOfferedWater());
+
+        player.changeGold(offer.getRequestedGold());
+        player.changeFood(offer.getRequestedFood());
+        player.changeWater(offer.getRequestedWater());
+
+        gold = gold + offer.getOfferedGold() - offer.getRequestedGold();
+        food = food + offer.getOfferedFood() - offer.getRequestedFood();
+        water = water + offer.getOfferedWater() - offer.getRequestedWater();
+
+        return true;
     }
 
     public int getTraderID() {

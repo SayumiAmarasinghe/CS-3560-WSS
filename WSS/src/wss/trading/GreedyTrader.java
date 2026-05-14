@@ -1,5 +1,7 @@
 package wss.trading;
 
+import wss.entities.Player;
+
 /*
 - stricter trader type that expects trades to be profitable
 - less likely to accept than the normal trader and asks for more when making a counteroffer
@@ -12,7 +14,7 @@ public class GreedyTrader extends Trader {
     private static final double COUNTER_CHANCE = 0.80;
 
     public GreedyTrader(String name, int patienceLevel) {
-        this(0, name, 10, 10, 10, patienceLevel);
+        this(0, name, 40, 35, 35, patienceLevel);
     }
 
     public GreedyTrader(int traderID, String name, int gold, int food, int water, int patienceLevel) {
@@ -37,20 +39,12 @@ public class GreedyTrader extends Trader {
     }
 
     @Override
-    public TradeOffer counterOffer(TradeOffer offer) {
+    public TradeOffer counterOffer(TradeOffer offer, Player player) {
         if (!canCounter()) {
             return offer;
         }
 
         useCounterAttempt();
-        int extraGoldRequested = Math.random() < 0.50 ? 2 : 3;
-
-        return new TradeOffer(
-                offer.getOfferedGold() + extraGoldRequested,
-                offer.getOfferedFood(),
-                offer.getOfferedWater(),
-                offer.getRequestedGold(),
-                offer.getRequestedFood(),
-                offer.getRequestedWater());
+        return addRandomAffordableDemand(offer, player, 2, 4);
     }
 }

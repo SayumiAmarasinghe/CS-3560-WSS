@@ -1,5 +1,7 @@
 package wss.trading;
 
+import wss.entities.Player;
+
 /*
 - fair trader type that is usually willing to accept balanced trades
 - might counter offers that are close, but rejects offers that are too low or when patience runs out
@@ -11,7 +13,7 @@ public class NormalTrader extends Trader {
     private static final double COUNTER_CHANCE = 0.70;
 
     public NormalTrader(String name, int patienceLevel) {
-        this(0, name, 10, 10, 10, patienceLevel);
+        this(0, name, 25, 50, 50, patienceLevel);
     }
 
     public NormalTrader(int traderID, String name, int gold, int food, int water, int patienceLevel) {
@@ -36,20 +38,12 @@ public class NormalTrader extends Trader {
     }
 
     @Override
-    public TradeOffer counterOffer(TradeOffer offer) {
+    public TradeOffer counterOffer(TradeOffer offer, Player player) {
         if (!canCounter()) {
             return offer;
         }
 
         useCounterAttempt();
-        int extraGoldRequested = Math.random() < 0.50 ? 1 : 2;
-
-        return new TradeOffer(
-                offer.getOfferedGold() + extraGoldRequested,
-                offer.getOfferedFood(),
-                offer.getOfferedWater(),
-                offer.getRequestedGold(),
-                offer.getRequestedFood(),
-                offer.getRequestedWater());
+        return addRandomAffordableDemand(offer, player, 1, 2);
     }
 }

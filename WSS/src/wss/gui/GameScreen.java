@@ -14,6 +14,8 @@ import wss.entities.Player;
 import wss.map.Difficulty;
 import wss.terrain.TerrainSquare;
 import wss.terrain.TerrainType;
+import wss.trading.TradeOffer;
+import wss.trading.Trader;
 import wss.vision.VisionFactory;
 import wss.gui.util.ImageLoader;
 import wss.items.*;
@@ -390,16 +392,20 @@ public class GameScreen extends JFrame {
             
             // 5. Update Player State
             player.setMapPosition(nextX, nextY); 
-            updatePlayerIcon();
+            if (moveOcurred) {
+                refreshMapVisionTiles();
+            } else {
+                updatePlayerIcon();
+            }
+
+            if (target.hasTrader()) {
+                handleTraderEncounter(target.getTrader());
+            }
             
             // 6. Win Condition Check
             if (nextX == width - 1 && nextY == height - 1) {
                 JOptionPane.showMessageDialog(this, "Success! You reached the East Edge.");
                 dispose();
-            }
-            /// 7. Show Potential Moves
-            if (moveOcurred) {
-                refreshMapVisionTiles();
             }
         } else {
             // Provide feedback when move is denied due to lack of resources
@@ -419,6 +425,207 @@ public class GameScreen extends JFrame {
         gridLabels[realY][realX].setForeground(Color.WHITE);
         gridLabels[realY][realX].setHorizontalAlignment(SwingConstants.CENTER);
         gridLabels[realY][realX].setFont(new Font("Arial", Font.BOLD, 20));
+    }
+
+    private void handleTraderEncounter(Trader trader) {
+        TradeOffer offer = promptForTradeOffer(trader, null);
+
+        if (offer == null) {
+            return;
+        }
+
+        processTradeOffer(trader, offer);
+    }
+
+    private void processTradeOffer(Trader trader, TradeOffer offer) {
+        if (!trader.canCompleteTrade(player, offer)) {
+            JOptionPane.showMessageDialog(this,
+                    "That trade cannot be completed because someone does not have enough resources.\n\n"
+                            + getTradeResourceStatus(trader),
+                    "Trade Failed",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String decision = trader.proposeTrade(offer);
+        if (decision.equals(Trader.ACCEPT)) {
+            trader.completeTrade(player, offer);
+            JOptionPane.showMessageDialog(this,
+                    trader.acceptTrade(offer),
+                    "Trade Accepted",
+                    JOptionPane.INFORMATION_MESSAGE);
+            updateUI();
+            return;
+        }
+
+        if (decision.equals(Trader.COUNTER)) {
+            handleCounterOffer(trader, trader.counterOffer(offer, player));
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this,
+                trader.rejectTrade(offer),
+                "Trade Rejected",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private TradeOffer promptForTradeOffer(Trader trader, TradeOffer startingOffer) {
+        JSpinner offeredGold = createTradeSpinner(getStartingOfferedGold(startingOffer));
+        JSpinner offeredFood = createTradeSpinner(getStartingOfferedFood(startingOffer));
+        JSpinner offeredWater = createTradeSpinner(getStartingOfferedWater(startingOffer));
+        JSpinner requestedGold = createTradeSpinner(getStartingRequestedGold(startingOffer));
+        JSpinner requestedFood = createTradeSpinner(getStartingRequestedFood(startingOffer));
+        JSpinner requestedWater = createTradeSpinner(getStartingRequestedWater(startingOffer));
+
+        JPanel resourcePanel = new JPanel(new GridLayout(0, 1));
+        resourcePanel.add(new JLabel("Player: " + getPlayerResourceSummary()));
+        resourcePanel.add(new JLabel("Trader: " + getTraderResourceSummary(trader)));
+
+        JPanel offerPanel = new JPanel(new GridLayout(0, 4, 6, 6));
+        offerPanel.add(new JLabel(""));
+        offerPanel.add(new JLabel("Gold"));
+        offerPanel.add(new JLabel("Food"));
+        offerPanel.add(new JLabel("Water"));
+        offerPanel.add(new JLabel("Offer"));
+        offerPanel.add(offeredGold);
+        offerPanel.add(offeredFood);
+        offerPanel.add(offeredWater);
+        offerPanel.add(new JLabel("Request"));
+        offerPanel.add(requestedGold);
+        offerPanel.add(requestedFood);
+        offerPanel.add(requestedWater);
+
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.add(resourcePanel, BorderLayout.NORTH);
+        panel.add(offerPanel, BorderLayout.CENTER);
+
+        int result = JOptionPane.showConfirmDialog(this,
+                panel,
+                trader.toString() + " - Make a Trade Offer",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (result != JOptionPane.OK_OPTION) {
+            return null;
+        }
+
+        try {
+            return createTradeOffer(
+                    (Integer) offeredGold.getValue(),
+                    (Integer) offeredFood.getValue(),
+                    (Integer) offeredWater.getValue(),
+                    (Integer) requestedGold.getValue(),
+                    (Integer) requestedFood.getValue(),
+                    (Integer) requestedWater.getValue());
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this,
+                    ex.getMessage(),
+                    "Invalid Trade Offer",
+                    JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+    }
+
+    private JSpinner createTradeSpinner(int startingValue) {
+        return new JSpinner(new SpinnerNumberModel(startingValue, 0, 100, 1));
+    }
+
+    private int getStartingOfferedGold(TradeOffer offer) {
+        return offer == null ? 0 : offer.getOfferedGold();
+    }
+
+    private int getStartingOfferedFood(TradeOffer offer) {
+        return offer == null ? 0 : offer.getOfferedFood();
+    }
+
+    private int getStartingOfferedWater(TradeOffer offer) {
+        return offer == null ? 0 : offer.getOfferedWater();
+    }
+
+    private int getStartingRequestedGold(TradeOffer offer) {
+        return offer == null ? 0 : offer.getRequestedGold();
+    }
+
+    private int getStartingRequestedFood(TradeOffer offer) {
+        return offer == null ? 0 : offer.getRequestedFood();
+    }
+
+    private int getStartingRequestedWater(TradeOffer offer) {
+        return offer == null ? 0 : offer.getRequestedWater();
+    }
+
+    private TradeOffer createTradeOffer(int offeredGold, int offeredFood, int offeredWater,
+                                        int requestedGold, int requestedFood, int requestedWater) {
+        int totalOffered = offeredGold + offeredFood + offeredWater;
+        int totalRequested = requestedGold + requestedFood + requestedWater;
+
+        if (totalOffered == 0 && totalRequested == 0) {
+            throw new IllegalArgumentException("Trade offer cannot be empty.");
+        }
+
+        return new TradeOffer(offeredGold, offeredFood, offeredWater,
+                requestedGold, requestedFood, requestedWater);
+    }
+
+    private String getTradeResourceStatus(Trader trader) {
+        return "Player: " + getPlayerResourceSummary() + "\n"
+                + "Trader: " + getTraderResourceSummary(trader);
+    }
+
+    private String getPlayerResourceSummary() {
+        return player.getGold() + " gold, "
+                + player.getCurrentFood() + " food, "
+                + player.getCurrentWater() + " water";
+    }
+
+    private String getTraderResourceSummary(Trader trader) {
+        return trader.getGold() + " gold, "
+                + trader.getFood() + " food, "
+                + trader.getWater() + " water";
+    }
+
+    private void handleCounterOffer(Trader trader, TradeOffer counterOffer) {
+        String[] options = {"Accept Counteroffer", "Make New Offer", "End Trade"};
+        int answer = JOptionPane.showOptionDialog(this,
+                trader.getName() + " makes a counteroffer:\n" + counterOffer,
+                "Counteroffer",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if (answer == 0 && trader.canCompleteTrade(player, counterOffer)) {
+            trader.completeTrade(player, counterOffer);
+            JOptionPane.showMessageDialog(this,
+                    trader.acceptTrade(counterOffer),
+                    "Trade Accepted",
+                    JOptionPane.INFORMATION_MESSAGE);
+            updateUI();
+            return;
+        }
+
+        if (answer == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "That counteroffer cannot be completed because someone does not have enough resources.\n\n"
+                            + getTradeResourceStatus(trader),
+                    "Trade Failed",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (answer == 1) {
+            TradeOffer newOffer = promptForTradeOffer(trader, counterOffer);
+            if (newOffer != null) {
+                processTradeOffer(trader, newOffer);
+            }
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this,
+                trader.rejectTrade(counterOffer),
+                "Trade Ended",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JProgressBar createBar(Color color, String label) {

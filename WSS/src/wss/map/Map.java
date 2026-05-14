@@ -71,11 +71,12 @@ public class Map
                     double rand = Math.random();
                     double itemsRand = Math.random();
                     double traderRand = Math.random();
+                    boolean isSpecialSquare = (x == 0 && y == 0) || (x == width - 1 && y == height - 1);
                     Trader trader = null;
                     List<Item> theItemList = new ArrayList<>();
             
                     // 25% chance that this square has items
-                    if (itemsRand < .25) 
+                    if (!isSpecialSquare && itemsRand < .25) 
                     {
                         // Add up to 3 random items
                         for (int i = 0; i < 3; i++)  // 50% chance of no item being added
@@ -99,7 +100,7 @@ public class Map
                             }
                         }
                     }
-                    else {
+                    else if (!isSpecialSquare) {
                         // 5% chance of trader
                         if (traderRand < .05){
                             double typeOfTrader = Math.random();
