@@ -82,17 +82,17 @@ public class Map
             
                             if (itemRand < 0.16) 
                             {
-                                GoldBonus gold = new GoldBonus((int)(Math.random() * (25 - 1)) + 1);
+                                GoldBonus gold = new GoldBonus(randomItemAmount(1, 5));
                                 theItemList.add(gold);
                             } 
                             else if (itemRand < 0.32) 
                             {
-                                FoodBonus food = new FoodBonus((int)(Math.random() * (25 - 1)) + 1);
+                                FoodBonus food = new FoodBonus(randomItemAmount(3, 8));
                                 theItemList.add(food);
                             } 
                             else if (itemRand < .5)
                             {
-                                WaterBonus water = new WaterBonus((int)(Math.random() * (25 - 1)) + 1);
+                                WaterBonus water = new WaterBonus(randomItemAmount(3, 8));
                                 theItemList.add(water);
                             }
                         }
@@ -126,6 +126,12 @@ public class Map
         return mapGrid;
 
     }
+
+    private int randomItemAmount(int min, int max)
+    {
+        return min + (int)(Math.random() * (max - min + 1));
+    }
+
     public int getHeight() 
     {
         return height;

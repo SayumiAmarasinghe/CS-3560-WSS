@@ -102,6 +102,7 @@ public class TerrainSquare {
             for (Item item : items) {
                 item.takeItem(player);
             }
+            items.clear();
         }
     }
 
