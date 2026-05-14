@@ -97,6 +97,11 @@ public class TerrainSquare {
             player.changeFood(-foodCost);
             player.changeWater(-waterCost);
             player.changeMovementPoints(-movementCost);
+
+            // if items exist, take their resources
+            for (Item item : items) {
+                item.takeItem(player);
+            }
         }
     }
 

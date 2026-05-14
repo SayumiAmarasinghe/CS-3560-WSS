@@ -1,23 +1,26 @@
 package wss.items;
 
+import wss.entities.Player;
+
 public class FoodBonus extends Item {
 
     private int foodAmount;
 
-public int getFoodAmount() {
-    return foodAmount;
-}
-    
+    public int getFoodAmount() {
+        return foodAmount;
+    }
+
     @Override
     public void replenish(int amount) {
         this.foodAmount += amount;
+        isTaken = false;
     }
 
-    public int takeFood(int amount) { 
-        if (this.foodAmount >= amount) {
-            return this.foodAmount -= amount;
-        } else {
-            return -1; // Not enough food to take
+    @Override
+    public void takeItem(Player player) { 
+        if (!isTaken) {
+            isTaken = true;
+            player.changeFood(foodAmount);
         }
     }
     

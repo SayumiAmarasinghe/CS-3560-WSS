@@ -1,23 +1,26 @@
 package wss.items;
 
+import wss.entities.Player;
+
 public class GoldBonus extends Item {
 
     private int goldAmount;
 
-public int getGoldAmount() {
-    return goldAmount;
-}
+    public int getGoldAmount() {
+        return goldAmount;
+    }
     
     @Override
     public void replenish(int amount) {
         this.goldAmount += amount;
+        isTaken = false;
     }
 
-    public int takeGold(int amount) { 
-        if (this.goldAmount >= amount) {
-            return this.goldAmount -= amount;
-        } else {
-            return -1; // Not enough gold to take
+    @Override
+    public void takeItem(Player player) { 
+        if (!isTaken) {
+            isTaken = true;
+            player.changeGold(goldAmount);
         }
     }
     

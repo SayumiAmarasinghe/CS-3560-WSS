@@ -1,11 +1,15 @@
 package wss.items;
 
-public class Item {
+import wss.entities.Player;
 
+public abstract class Item {
+
+    protected Boolean isTaken;
     // Can the item be replenished?
     protected Boolean repeating;
     
-    // Virtual method to be overriden by item subclasses
-    public void replenish(int amount){}
+    // Abstract methods to be implemented in item subclasses
+    public abstract void replenish(int amount);
+    public abstract void takeItem(Player player);
 
 }
