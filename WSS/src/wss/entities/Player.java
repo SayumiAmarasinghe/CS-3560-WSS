@@ -29,7 +29,10 @@ public class Player {
             throw new IllegalArgumentException("Max or starting values cannot be 0 or less");
         }
         if (chosenVision == null) {
-            throw new IllegalArgumentException("Vision and Brain cannot be null");
+            throw new IllegalArgumentException("Vision cannot be null");
+        }
+        if (map == null) {
+            throw new IllegalArgumentException("Map cannot be null");
         }
 
         this.maxStrength = maxStrength;
@@ -45,7 +48,7 @@ public class Player {
 
         this.vision = chosenVision;
         this.brain = new Brain(this);
-        this.map = getMap();
+        this.map = map;
     }
 
     // -------------------- Helper Methods --------------------
@@ -68,6 +71,20 @@ public class Player {
     private int setResource(int newValue, int maxResource, String resourceName) {
         return bound(newValue, maxResource, resourceName);
     }
+
+    public int[] makeBrainSuggestion(){
+        if (brain.suggestPath()){
+            int suggestedRow = brain.getSuggestedRow();
+            int suggestedCol = brain.getSuggestedCol();
+            return new int[]{suggestedRow, suggestedCol};
+        } else {
+            System.out.println("No valid moves suggested by brain.");
+            return null;
+        }
+        
+    }
+
+
 
     // -------------------- Food --------------------
 

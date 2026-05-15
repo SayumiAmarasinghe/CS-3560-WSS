@@ -22,6 +22,7 @@ public class GameScreen extends JFrame {
     private JProgressBar foodBar, waterBar, moveBar;
     private JLabel goldLabel;
     private JLabel[][] gridLabels;
+    private JButton hintBtn;
     
     //use map class 
     private Map gameMap;
@@ -74,6 +75,14 @@ public class GameScreen extends JFrame {
                 handleMovement(e.getKeyCode());
             }
         });
+
+
+        // --- HINT BUTTONS ---
+
+        setHintButton();
+        add(hintBtn, BorderLayout.SOUTH);
+
+
         updateUI();
         setFocusable(true);
         requestFocusInWindow();
@@ -102,6 +111,20 @@ public class GameScreen extends JFrame {
         }
         }
 
+    }
+
+    private void refreshTile(int x, int y) {
+        int tileSize = 60;
+        JLabel tile = gridLabels[y][x];
+
+        TerrainSquare square = gameMap.getTerrainAt(y, x);
+        TerrainType type = square.getTerrainType();
+
+        if (x == width - 1 && y == height - 1) {
+            tile.setIcon(ImageLoader.loadIcon("exit.png", tileSize, tileSize));
+        } else {
+            tile.setIcon(buildTileIcon(type, square, tileSize));
+        }
     }
 
     private void refreshMapVisionTiles() {
@@ -390,8 +413,8 @@ public class GameScreen extends JFrame {
         if (target.canEnter(player)) {          
             target.enterSquare(player);         
             
-            // 4. Update UI Grid (Clear the "P" from old square)
-            gridLabels[currentY][currentX].setText(""); 
+            // 4. Update UI Grid, clears player icon
+            refreshTile(currentX, currentY);
             
             // Optional: Re-draw background if switching to player.png image later
             // TerrainType oldType = gameMap.getTerrainAt(currentY, currentX).getTerrainType();
@@ -427,12 +450,23 @@ public class GameScreen extends JFrame {
     }
 
     private void updatePlayerIcon() {
-        int realX = player.getXMapPos();
-        int realY = player.getYMapPos();
-        gridLabels[realY][realX].setText("P");
-        gridLabels[realY][realX].setForeground(Color.WHITE);
-        gridLabels[realY][realX].setHorizontalAlignment(SwingConstants.CENTER);
-        gridLabels[realY][realX].setFont(new Font("Arial", Font.BOLD, 20));
+        JLabel tile = gridLabels[player.getYMapPos()][player.getXMapPos()];
+
+        Icon base = tile.getIcon();
+
+        int width = base.getIconWidth();
+        int height = base.getIconHeight();
+
+        BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = combined.createGraphics();
+
+        base.paintIcon(null, g, 0, 0);
+        ImageIcon target = ImageLoader.loadIcon("player_tile.png", width, height);
+        g.drawImage(target.getImage(), 0, 0, width, height, null);
+
+        g.dispose();
+
+        tile.setIcon(new ImageIcon(combined));
     }
 
     private void handleTraderEncounter(Trader trader) {
@@ -662,4 +696,42 @@ public class GameScreen extends JFrame {
         gbc.gridx = 1;
         p.add(value, gbc);
     }
+
+    private JButton createStyledButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("MV Boli", Font.PLAIN,18));
+        btn.setBackground(Color.WHITE);
+        return btn;
+    }
+
+    private void setHintButton(){
+        hintBtn = createStyledButton("Hint");
+        hintBtn.setFocusable(false);
+        hintBtn.addActionListener(e -> {
+            int[] suggestion = player.makeBrainSuggestion();
+            if ( suggestion == null ) return;
+            // Sets square to have a red target border to indicate the suggestion
+            JLabel tile = gridLabels[suggestion[0]][suggestion[1]];
+            tile.setIcon(drawTargetOverlay(tile.getIcon()));
+
+        });
+
+    };
+
+    private ImageIcon drawTargetOverlay(Icon base){
+        int width = base.getIconWidth();
+        int height = base.getIconHeight();
+
+        BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = combined.createGraphics();
+
+        base.paintIcon(null, g, 0, 0);
+        ImageIcon target = ImageLoader.loadIcon("target.png", width, height);
+        g.drawImage(target.getImage(), 0, 0, width, height, null);
+
+        g.dispose();
+
+        return new ImageIcon(combined);
+    }
+
 }
