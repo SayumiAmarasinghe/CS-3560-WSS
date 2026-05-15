@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "InstrScreen",
+            "request": "launch",
+            "mainClass": "wss.gui.InstrScreen",
+            "projectName": "CS-3560-WSS_e10fd20"
+        },
+        {
+            "type": "java",
             "name": "Main",
             "request": "launch",
             "mainClass": "wss.Main",
